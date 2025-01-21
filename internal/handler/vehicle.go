@@ -1,8 +1,12 @@
 package handler
 
 import (
+	"app/internal/repository"
 	"app/internal/service"
 	"app/pkg/models"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
@@ -56,6 +60,37 @@ func (h *VehicleDefault) GetAll() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, map[string]any{
 			"message": "success",
 			"data":    data,
+		})
+	}
+}
+
+func (h *VehicleDefault) Create() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vehicleToCreate := models.VehicleDoc{}
+		if err := json.NewDecoder(r.Body).Decode(&vehicleToCreate); err != nil {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		savedV, err := h.sv.Create(vehicleToCreate)
+
+		if err != nil {
+			if errors.Is(err, repository.ExistingVehicleError) {
+				response.Error(w, http.StatusConflict, err.Error())
+				return
+			}
+
+			if errors.As(err, &service.ValidationError{}) {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+
+			response.Error(w, 0, err.Error()) // Internal Error
+			return
+		}
+
+		response.JSON(w, http.StatusCreated, map[string]string{
+			"success": fmt.Sprintf("Vehicle with ID %d was created succesfully", savedV.Id),
 		})
 	}
 }

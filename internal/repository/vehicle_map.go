@@ -31,3 +31,11 @@ func (r *VehicleMap) FindAll() (v map[int]models.Vehicle, err error) {
 
 	return
 }
+
+func (r *VehicleMap) Save(v models.Vehicle) (models.Vehicle, error) {
+	if _, ok := r.db[v.Id]; !ok {
+		r.db[v.Id] = v
+		return v, nil
+	}
+	return models.Vehicle{}, ExistingVehicleError
+}

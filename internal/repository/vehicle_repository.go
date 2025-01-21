@@ -6,4 +6,5 @@ import "app/pkg/models"
 type VehicleRepository interface {
 	// FindAll is a method that returns a map of all vehicles
 	FindAll() (v map[int]models.Vehicle, err error)
+	Save(models.Vehicle) (models.Vehicle, error)
 }

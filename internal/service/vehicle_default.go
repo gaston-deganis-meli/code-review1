@@ -16,8 +16,88 @@ type VehicleDefault struct {
 	rp repository.VehicleRepository
 }
 
+func validateVehicle(v models.VehicleDoc) ([]string, error) {
+	failedAttr := make([]string, 0)
+	if v.Brand == "" {
+		failedAttr = append(failedAttr, "Brand")
+	}
+	if v.Model == "" {
+		failedAttr = append(failedAttr, "Model")
+	}
+	if v.Registration == "" {
+		failedAttr = append(failedAttr, "Registration")
+	}
+	if v.Color == "" {
+		failedAttr = append(failedAttr, "Color")
+	}
+	if v.FabricationYear <= 0 {
+		failedAttr = append(failedAttr, "FabricationYear")
+	}
+	if v.Capacity <= 0 {
+		failedAttr = append(failedAttr, "Capacity")
+	}
+	if v.MaxSpeed <= 0.0 {
+		failedAttr = append(failedAttr, "MaxSpeed")
+	}
+	if v.FuelType == "" {
+		failedAttr = append(failedAttr, "FuelType")
+	}
+	if v.Transmission == "" {
+		failedAttr = append(failedAttr, "Transmission")
+	}
+	if v.Weight <= 0.0 {
+		failedAttr = append(failedAttr, "Weight")
+	}
+	if v.Length <= 0.0 {
+		failedAttr = append(failedAttr, "Length")
+	}
+	if v.Width <= 0.0 {
+		failedAttr = append(failedAttr, "Width")
+	}
+
+	if len(failedAttr) > 0 {
+		return failedAttr, ValidationError{failedAttr}
+	}
+
+	return failedAttr, nil
+}
+
 // FindAll is a method that returns a map of all vehicles
 func (s *VehicleDefault) FindAll() (v map[int]models.Vehicle, err error) {
 	v, err = s.rp.FindAll()
 	return
+}
+
+func (s *VehicleDefault) Create(vDoc models.VehicleDoc) (models.Vehicle, error) {
+
+	// Validate
+	if _, err := validateVehicle(vDoc); err != nil {
+		return models.Vehicle{}, err
+	}
+
+	// Creating Model
+	v := models.Vehicle{
+		Id: vDoc.ID,
+		VehicleAttributes: models.VehicleAttributes{
+			Brand:           vDoc.Brand,
+			Model:           vDoc.Model,
+			Registration:    vDoc.Registration,
+			Color:           vDoc.Color,
+			FabricationYear: vDoc.FabricationYear,
+			Capacity:        vDoc.Capacity,
+			MaxSpeed:        vDoc.MaxSpeed,
+			FuelType:        vDoc.FuelType,
+			Transmission:    vDoc.Transmission,
+			Weight:          vDoc.Weight,
+			Dimensions: models.Dimensions{
+				Height: vDoc.Height,
+				Length: vDoc.Length,
+				Width:  vDoc.Width,
+			},
+		},
+	}
+
+	// Save Model
+	savedV, err := s.rp.Save(v)
+	return savedV, err
 }
