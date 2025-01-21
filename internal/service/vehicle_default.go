@@ -101,3 +101,9 @@ func (s *VehicleDefault) Create(vDoc models.VehicleDoc) (models.Vehicle, error) 
 	savedV, err := s.rp.Save(v)
 	return savedV, err
 }
+
+func (s *VehicleDefault) FindByAttrs(color string, year int) (v map[int]models.Vehicle, err error) {
+	// Validation acá ---
+	v, err = s.rp.FindByAttrs(color, year)
+	return
+}

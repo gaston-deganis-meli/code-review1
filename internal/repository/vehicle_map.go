@@ -2,6 +2,7 @@ package repository
 
 import (
 	"app/pkg/models"
+	"strings"
 )
 
 // NewVehicleMap is a function that returns a new instance of VehicleMap
@@ -38,4 +39,17 @@ func (r *VehicleMap) Save(v models.Vehicle) (models.Vehicle, error) {
 		return v, nil
 	}
 	return models.Vehicle{}, ExistingVehicleError
+}
+
+func (r *VehicleMap) FindByAttrs(color string, year int) (v map[int]models.Vehicle, err error) {
+	foundV := make(map[int]models.Vehicle)
+	for id, vehicle := range r.db {
+		if strings.ToLower(vehicle.Color) == strings.ToLower(color) && vehicle.FabricationYear == year {
+			foundV[id] = vehicle
+		}
+	}
+	if len(foundV) > 0 {
+		return foundV, nil
+	}
+	return foundV, NotFoundError
 }

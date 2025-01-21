@@ -8,8 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 )
 
 // NewVehicleDefault is a function that returns a new instance of VehicleDefault
@@ -91,6 +93,50 @@ func (h *VehicleDefault) Create() http.HandlerFunc {
 
 		response.JSON(w, http.StatusCreated, map[string]string{
 			"success": fmt.Sprintf("Vehicle with ID %d was created succesfully", savedV.Id),
+		})
+	}
+}
+
+func (h *VehicleDefault) FindByAttrs() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		color := chi.URLParam(r, "color")
+
+		yearStr := chi.URLParam(r, "year")
+		year, _ := strconv.Atoi(yearStr)
+
+		foundV, err := h.sv.FindByAttrs(color, year)
+		if err != nil {
+			if errors.Is(err, repository.NotFoundError) {
+				response.Error(w, http.StatusNotFound, "404: Not found vehicles with matching attributes")
+				return
+			}
+			response.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		// response
+		data := make(map[int]models.VehicleDoc)
+		for key, value := range foundV {
+			data[key] = models.VehicleDoc{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
 		})
 	}
 }
