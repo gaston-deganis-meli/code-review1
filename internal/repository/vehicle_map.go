@@ -68,3 +68,21 @@ func (r *VehicleMap) FindByAttrsBrandNYears(brand string, from, to int) (map[int
 	}
 	return foundV, NotFoundError
 }
+
+func (r *VehicleMap) AverageByBrand(brand string) (average float64, err error) {
+	var sumSpeed float64
+	var counter float64
+
+	for _, v := range r.db {
+		if strings.ToLower(v.Brand) == strings.ToLower(brand) {
+			counter++
+			sumSpeed += v.MaxSpeed
+		}
+	}
+
+	if counter > 0 {
+		average = sumSpeed / counter
+		return average, nil
+	}
+	return average, BrandNotFound
+}

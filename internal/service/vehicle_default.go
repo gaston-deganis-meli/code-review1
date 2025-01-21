@@ -133,3 +133,12 @@ func (s *VehicleDefault) FindByAttrsBrandNYears(brand string, from, to int) (map
 	foundV, err := s.rp.FindByAttrsBrandNYears(brand, from, to)
 	return foundV, err
 }
+
+func (s *VehicleDefault) AverageByBrand(brand string) (average float64, err error) {
+	if brand == "" {
+		return average, ValidationError{[]string{"Brand"}}
+	}
+	average, err = s.rp.AverageByBrand(brand)
+
+	return
+}

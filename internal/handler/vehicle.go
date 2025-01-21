@@ -196,3 +196,34 @@ func (h *VehicleDefault) FindByAttrsBrandNYears() http.HandlerFunc {
 
 	}
 }
+
+func (h *VehicleDefault) AverageByBrand() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		brand := chi.URLParam(r, "brand")
+
+		av, err := h.sv.AverageByBrand(brand)
+
+		// Error handling
+		if err != nil {
+			if errors.Is(err, repository.BrandNotFound) {
+				response.Error(w, http.StatusNotFound, err.Error())
+				return
+			}
+
+			if errors.As(err, &service.ValidationError{}) {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+
+			response.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		data := fmt.Sprintf("average speed is %f", av)
+		response.JSON(w, http.StatusOK, map[string]any{
+			"status":  "success",
+			"message": data,
+		})
+
+	}
+}
