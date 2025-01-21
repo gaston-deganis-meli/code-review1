@@ -102,8 +102,34 @@ func (s *VehicleDefault) Create(vDoc models.VehicleDoc) (models.Vehicle, error) 
 	return savedV, err
 }
 
-func (s *VehicleDefault) FindByAttrs(color string, year int) (v map[int]models.Vehicle, err error) {
+func (s *VehicleDefault) FindByAttrsColorNYear(color string, year int) (v map[int]models.Vehicle, err error) {
 	// Validation acá ---
-	v, err = s.rp.FindByAttrs(color, year)
+	v, err = s.rp.FindByAttrsColorNYear(color, year)
 	return
+}
+
+func ValidateBrandNYears(brand string, from, to int) error {
+	errorFields := make([]string, 0)
+	if brand == "" {
+		errorFields = append(errorFields, "Brand")
+	}
+	if from == 0 {
+		errorFields = append(errorFields, "FromYear")
+	}
+	if to == 0 {
+		errorFields = append(errorFields, "ToYear")
+	}
+	if len(errorFields) > 0 {
+		return ValidationError{errorFields}
+	}
+	return nil
+}
+
+func (s *VehicleDefault) FindByAttrsBrandNYears(brand string, from, to int) (map[int]models.Vehicle, error) {
+	if err := ValidateBrandNYears(brand, from, to); err != nil {
+		return map[int]models.Vehicle{}, err
+	}
+
+	foundV, err := s.rp.FindByAttrsBrandNYears(brand, from, to)
+	return foundV, err
 }

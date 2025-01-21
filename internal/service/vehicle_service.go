@@ -7,5 +7,6 @@ type VehicleService interface {
 	// FindAll is a method that returns a map of all vehicles
 	FindAll() (v map[int]models.Vehicle, err error)
 	Create(vDoc models.VehicleDoc) (savedV models.Vehicle, err error)
-	FindByAttrs(color string, year int) (v map[int]models.Vehicle, err error)
+	FindByAttrsColorNYear(color string, year int) (v map[int]models.Vehicle, err error)
+	FindByAttrsBrandNYears(brand string, from, to int) (map[int]models.Vehicle, error)
 }

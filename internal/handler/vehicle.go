@@ -104,7 +104,7 @@ func (h *VehicleDefault) FindByAttrs() http.HandlerFunc {
 		yearStr := chi.URLParam(r, "year")
 		year, _ := strconv.Atoi(yearStr)
 
-		foundV, err := h.sv.FindByAttrs(color, year)
+		foundV, err := h.sv.FindByAttrsColorNYear(color, year)
 		if err != nil {
 			if errors.Is(err, repository.NotFoundError) {
 				response.Error(w, http.StatusNotFound, "404: Not found vehicles with matching attributes")
@@ -138,5 +138,61 @@ func (h *VehicleDefault) FindByAttrs() http.HandlerFunc {
 			"message": "success",
 			"data":    data,
 		})
+	}
+}
+
+func (h *VehicleDefault) FindByAttrsBrandNYears() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		// Get our params
+		brand := chi.URLParam(r, "brand")
+
+		yearFromStr := chi.URLParam(r, "start_year")
+		yearToStr := chi.URLParam(r, "end_year")
+
+		yearFrom, _ := strconv.Atoi(yearFromStr)
+		yearTo, _ := strconv.Atoi(yearToStr)
+
+		foundV, err := h.sv.FindByAttrsBrandNYears(brand, yearFrom, yearTo)
+
+		// Error handling
+		if err != nil {
+			if errors.Is(err, repository.NotFoundError) {
+				response.Error(w, http.StatusNotFound, err.Error())
+				return
+			}
+			if errors.As(err, &service.ValidationError{}) {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			response.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		// response
+		data := make(map[int]models.VehicleDoc)
+		for key, value := range foundV {
+			data[key] = models.VehicleDoc{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
+		})
+
 	}
 }

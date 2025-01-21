@@ -41,7 +41,7 @@ func (r *VehicleMap) Save(v models.Vehicle) (models.Vehicle, error) {
 	return models.Vehicle{}, ExistingVehicleError
 }
 
-func (r *VehicleMap) FindByAttrs(color string, year int) (v map[int]models.Vehicle, err error) {
+func (r *VehicleMap) FindByAttrsColorNYear(color string, year int) (v map[int]models.Vehicle, err error) {
 	foundV := make(map[int]models.Vehicle)
 	for id, vehicle := range r.db {
 		if strings.ToLower(vehicle.Color) == strings.ToLower(color) && vehicle.FabricationYear == year {
@@ -49,6 +49,21 @@ func (r *VehicleMap) FindByAttrs(color string, year int) (v map[int]models.Vehic
 		}
 	}
 	if len(foundV) > 0 {
+		return foundV, nil
+	}
+	return foundV, NotFoundError
+}
+
+func (r *VehicleMap) FindByAttrsBrandNYears(brand string, from, to int) (map[int]models.Vehicle, error) {
+	foundV := make(map[int]models.Vehicle)
+
+	for _, v := range r.db {
+		if strings.ToLower(v.Brand) == strings.ToLower(brand) && v.FabricationYear >= from && v.FabricationYear <= to {
+			foundV[v.Id] = v
+		}
+	}
+
+	if len(foundV) > 0 { // Encontró al menos un auto
 		return foundV, nil
 	}
 	return foundV, NotFoundError
