@@ -86,3 +86,13 @@ func (r *VehicleMap) AverageByBrand(brand string) (average float64, err error) {
 	}
 	return average, BrandNotFound
 }
+
+func (r *VehicleMap) BulkSave(vehicles []models.Vehicle) error {
+	for _, v := range vehicles {
+		if _, found := r.db[v.Id]; found {
+			return ExistingVehicleError
+		}
+		r.db[v.Id] = v
+	}
+	return nil
+}

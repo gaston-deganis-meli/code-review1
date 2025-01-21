@@ -227,3 +227,36 @@ func (h *VehicleDefault) AverageByBrand() http.HandlerFunc {
 
 	}
 }
+
+func (h *VehicleDefault) BulkCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vDocs := make([]models.VehicleDoc, 0)
+
+		// Decode body
+		if err := json.NewDecoder(r.Body).Decode(&vDocs); err != nil {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		// Error handling
+		if err := h.sv.BulkCreate(vDocs); err != nil {
+			if errors.Is(err, repository.ExistingVehicleError) {
+				response.Error(w, http.StatusConflict, err.Error())
+				return
+			}
+			if errors.As(err, &service.ValidationError{}) {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			response.Error(w, 0, err.Error())
+			return
+		}
+
+		// Todo ok :)
+
+		response.JSON(w, http.StatusCreated, map[string]string{
+			"status":  "created",
+			"message": "Successfully created vehicles",
+		})
+	}
+}

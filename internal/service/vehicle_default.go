@@ -142,3 +142,40 @@ func (s *VehicleDefault) AverageByBrand(brand string) (average float64, err erro
 
 	return
 }
+
+func (s *VehicleDefault) BulkCreate(vDocs []models.VehicleDoc) error {
+
+	vehicles := make([]models.Vehicle, 0)
+
+	for _, vDoc := range vDocs {
+		if _, err := validateVehicle(vDoc); err != nil {
+			return err
+		}
+
+		v := models.Vehicle{
+			Id: vDoc.ID,
+			VehicleAttributes: models.VehicleAttributes{
+				Brand:           vDoc.Brand,
+				Model:           vDoc.Model,
+				Registration:    vDoc.Registration,
+				Color:           vDoc.Color,
+				FabricationYear: vDoc.FabricationYear,
+				Capacity:        vDoc.Capacity,
+				MaxSpeed:        vDoc.MaxSpeed,
+				FuelType:        vDoc.FuelType,
+				Transmission:    vDoc.Transmission,
+				Weight:          vDoc.Weight,
+				Dimensions: models.Dimensions{
+					Height: vDoc.Height,
+					Length: vDoc.Length,
+					Width:  vDoc.Width,
+				},
+			},
+		}
+
+		vehicles = append(vehicles, v)
+	}
+
+	err := s.rp.BulkSave(vehicles)
+	return err
+}

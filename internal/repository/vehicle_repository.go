@@ -10,4 +10,5 @@ type VehicleRepository interface {
 	FindByAttrsColorNYear(color string, year int) (v map[int]models.Vehicle, err error)
 	FindByAttrsBrandNYears(brand string, from, to int) (v map[int]models.Vehicle, err error)
 	AverageByBrand(brand string) (average float64, err error)
+	BulkSave([]models.Vehicle) error
 }
