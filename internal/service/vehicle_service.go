@@ -12,4 +12,5 @@ type VehicleService interface {
 	AverageByBrand(brand string) (average float64, err error)
 	BulkCreate([]models.VehicleDoc) error
 	UpdateSpeed(id int, newSpeed float64) error
+	Delete(id int) error
 }

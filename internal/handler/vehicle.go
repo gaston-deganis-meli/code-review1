@@ -298,3 +298,29 @@ func (h *VehicleDefault) UpdateSpeed() http.HandlerFunc {
 
 	}
 }
+
+func (h *VehicleDefault) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		id, err := strconv.Atoi(idStr)
+
+		if err != nil {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err = h.sv.Delete(id); err != nil {
+			if errors.Is(err, service.NotFoundError) {
+				response.Error(w, http.StatusNotFound, err.Error())
+				return
+			}
+			response.Error(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		data := fmt.Sprintf("successfully deleted vehicle with id: %d", id)
+		response.JSON(w, http.StatusNoContent, map[string]string{
+			"success": data,
+		})
+	}
+}

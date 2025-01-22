@@ -12,4 +12,5 @@ type VehicleRepository interface {
 	AverageByBrand(brand string) (average float64, err error)
 	BulkSave([]models.Vehicle) error
 	UpdateSpeed(id int, newSpeed float64) error
+	Delete(id int) error
 }

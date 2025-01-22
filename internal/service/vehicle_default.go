@@ -191,3 +191,10 @@ func (s *VehicleDefault) UpdateSpeed(id int, newSpeed float64) error {
 
 	return nil
 }
+
+func (s *VehicleDefault) Delete(id int) error {
+	if err := s.rp.Delete(id); err != nil {
+		return NotFoundError
+	}
+	return nil
+}

@@ -106,3 +106,11 @@ func (r *VehicleMap) UpdateSpeed(id int, newSpeed float64) error {
 		return nil
 	}
 }
+
+func (r *VehicleMap) Delete(id int) error {
+	if _, exists := r.db[id]; !exists {
+		return NotFound
+	}
+	delete(r.db, id)
+	return nil
+}
