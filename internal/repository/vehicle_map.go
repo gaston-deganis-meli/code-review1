@@ -96,3 +96,13 @@ func (r *VehicleMap) BulkSave(vehicles []models.Vehicle) error {
 	}
 	return nil
 }
+
+func (r *VehicleMap) UpdateSpeed(id int, newSpeed float64) error {
+	if v, exists := r.db[id]; !exists {
+		return NotFoundError
+	} else {
+		v.MaxSpeed = newSpeed
+		r.db[id] = v
+		return nil
+	}
+}

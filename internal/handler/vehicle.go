@@ -260,3 +260,41 @@ func (h *VehicleDefault) BulkCreate() http.HandlerFunc {
 		})
 	}
 }
+
+type UpdateSpeedRequest struct {
+	NewSpeed float64 `json:"new_speed"`
+}
+
+func (h *VehicleDefault) UpdateSpeed() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		id, _ := strconv.Atoi(idStr)
+
+		updateRequest := UpdateSpeedRequest{}
+		if err := json.NewDecoder(r.Body).Decode(&updateRequest); err != nil {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		// Error handling
+		if err := h.sv.UpdateSpeed(id, updateRequest.NewSpeed); err != nil {
+			if errors.Is(err, service.ValError) {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			if errors.Is(err, service.NotFoundError) {
+				response.Error(w, http.StatusNotFound, err.Error())
+				return
+			}
+			// Internal Server Error
+			response.Error(w, 0, err.Error())
+			return
+		}
+
+		data := fmt.Sprintf("successfully updated vehicle with id %d", id)
+		response.JSON(w, http.StatusOK, map[string]string{
+			"success": data,
+		})
+
+	}
+}

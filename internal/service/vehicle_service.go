@@ -11,4 +11,5 @@ type VehicleService interface {
 	FindByAttrsBrandNYears(brand string, from, to int) (map[int]models.Vehicle, error)
 	AverageByBrand(brand string) (average float64, err error)
 	BulkCreate([]models.VehicleDoc) error
+	UpdateSpeed(id int, newSpeed float64) error
 }

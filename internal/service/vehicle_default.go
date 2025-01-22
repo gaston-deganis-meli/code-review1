@@ -179,3 +179,15 @@ func (s *VehicleDefault) BulkCreate(vDocs []models.VehicleDoc) error {
 	err := s.rp.BulkSave(vehicles)
 	return err
 }
+
+func (s *VehicleDefault) UpdateSpeed(id int, newSpeed float64) error {
+	if id <= 0 || newSpeed <= 0 || newSpeed > 350 {
+		return ValError
+	}
+
+	if err := s.rp.UpdateSpeed(id, newSpeed); err != nil {
+		return NotFoundError
+	}
+
+	return nil
+}
