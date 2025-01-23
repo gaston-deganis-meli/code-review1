@@ -198,3 +198,16 @@ func (s *VehicleDefault) Delete(id int) error {
 	}
 	return nil
 }
+
+func (s *VehicleDefault) FindByDimensions(minLength, maxLength, minWidth, maxWithd float64) (map[int]models.Vehicle, error) {
+	// if minLength == 0.0 || maxLength == 0.0 || minWidth == 0.0 || maxWithd == 0.0 {
+	// 	return map[int]models.Vehicle{}, ValError
+	// }
+
+	foundV := s.rp.FindByDimensions(minLength, maxLength, minWidth, maxWithd)
+	if len(foundV) == 0 {
+		return map[int]models.Vehicle{}, NotFoundMatchingError
+	}
+
+	return foundV, nil
+}

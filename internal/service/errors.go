@@ -16,3 +16,4 @@ func (e ValidationError) Error() string {
 
 var ValError error = errors.New("Validation Error, Some attributes may not be right")
 var NotFoundError error = errors.New("Vehicle with given ID does not exist")
+var NotFoundMatchingError error = errors.New("There is no vehicle with those attributes")

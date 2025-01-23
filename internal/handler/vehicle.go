@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
@@ -322,5 +323,85 @@ func (h *VehicleDefault) Delete() http.HandlerFunc {
 		response.JSON(w, http.StatusNoContent, map[string]string{
 			"success": data,
 		})
+	}
+}
+
+func (h *VehicleDefault) FindByDimensions() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		lenRange := query.Get("length")
+		widthRange := query.Get("width")
+
+		lengthParts := strings.Split(lenRange, "-")
+		widthParts := strings.Split(widthRange, "-")
+
+		fmt.Println(lengthParts)
+		fmt.Println(widthParts)
+
+		if len(lengthParts) == 2 && len(widthParts) == 2 {
+			minLength, err := strconv.ParseFloat(lengthParts[0], 64)
+			if err != nil {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			maxLength, err := strconv.ParseFloat(lengthParts[1], 64)
+			if err != nil {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			minWidth, err := strconv.ParseFloat(widthParts[0], 64)
+			if err != nil {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			maxWidth, err := strconv.ParseFloat(widthParts[1], 64)
+			if err != nil {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+
+			foundV, err := h.sv.FindByDimensions(minLength, maxLength, minWidth, maxWidth)
+			if err != nil {
+				if errors.Is(err, service.NotFoundMatchingError) {
+					response.Error(w, http.StatusNotFound, err.Error())
+					return
+				}
+				if errors.Is(err, service.ValError) {
+					response.Error(w, http.StatusBadRequest, err.Error())
+					return
+				}
+				response.Error(w, 0, err.Error())
+				return
+			}
+
+			data := make(map[int]models.VehicleDoc)
+			for key, value := range foundV {
+				data[key] = models.VehicleDoc{
+					ID:              value.Id,
+					Brand:           value.Brand,
+					Model:           value.Model,
+					Registration:    value.Registration,
+					Color:           value.Color,
+					FabricationYear: value.FabricationYear,
+					Capacity:        value.Capacity,
+					MaxSpeed:        value.MaxSpeed,
+					FuelType:        value.FuelType,
+					Transmission:    value.Transmission,
+					Weight:          value.Weight,
+					Height:          value.Height,
+					Length:          value.Length,
+					Width:           value.Width,
+				}
+			}
+			response.JSON(w, http.StatusOK, map[string]any{
+				"message": "success",
+				"data":    data,
+			})
+			return
+
+		} else {
+			response.Error(w, http.StatusBadRequest, "Incorrect query structure")
+			return
+		}
 	}
 }

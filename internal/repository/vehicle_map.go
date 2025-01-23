@@ -114,3 +114,13 @@ func (r *VehicleMap) Delete(id int) error {
 	delete(r.db, id)
 	return nil
 }
+
+func (r *VehicleMap) FindByDimensions(minLength, maxLength, minWidth, maxWithd float64) map[int]models.Vehicle {
+	foundVehicles := make(map[int]models.Vehicle)
+	for _, v := range r.db {
+		if v.Length >= minLength && v.Length <= maxLength && v.Width >= minWidth && v.Width <= maxLength {
+			foundVehicles[v.Id] = v
+		}
+	}
+	return foundVehicles
+}

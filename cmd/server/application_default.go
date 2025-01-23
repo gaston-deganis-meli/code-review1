@@ -79,6 +79,7 @@ func (a *ServerChi) Run() (err error) {
 		rt.Post("/batch", hd.BulkCreate())
 		rt.Put("/{id}/update_speed", hd.UpdateSpeed())
 		rt.Delete("/{id}", hd.Delete())
+		rt.Get("/dimensions", hd.FindByDimensions())
 	})
 
 	// run server
