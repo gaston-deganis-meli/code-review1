@@ -14,4 +14,5 @@ type VehicleService interface {
 	UpdateSpeed(id int, newSpeed float64) error
 	Delete(id int) error
 	FindByDimensions(minLength, maxLength, minWidth, maxWithd float64) (map[int]models.Vehicle, error)
+	FindByWeight(minW, maxW float64) (map[int]models.Vehicle, error)
 }

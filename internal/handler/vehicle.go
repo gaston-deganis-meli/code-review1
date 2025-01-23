@@ -405,3 +405,66 @@ func (h *VehicleDefault) FindByDimensions() http.HandlerFunc {
 		}
 	}
 }
+
+func (h *VehicleDefault) FindByWeight() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+
+		minStr := query.Get("min")
+		maxStr := query.Get("max")
+
+		// Convert to float
+		minF, err := strconv.ParseFloat(minStr, 64)
+		if err != nil {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		maxF, err := strconv.ParseFloat(maxStr, 64)
+		if err != nil {
+			response.Error(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		// Look for vehicles
+		foundV, err := h.sv.FindByWeight(minF, maxF)
+
+		// Error handling
+		if err != nil {
+			if errors.Is(err, service.ValError) {
+				response.Error(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			if errors.Is(err, service.NotFoundMatchingError) {
+				response.Error(w, http.StatusNotFound, err.Error())
+				return
+			}
+			response.Error(w, 0, err.Error()) // Internal Server Error
+			return
+		}
+
+		// Create DataResponse
+		data := make(map[int]models.VehicleDoc)
+		for key, value := range foundV {
+			data[key] = models.VehicleDoc{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
+		})
+	}
+}

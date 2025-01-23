@@ -80,6 +80,7 @@ func (a *ServerChi) Run() (err error) {
 		rt.Put("/{id}/update_speed", hd.UpdateSpeed())
 		rt.Delete("/{id}", hd.Delete())
 		rt.Get("/dimensions", hd.FindByDimensions())
+		rt.Get("/weight", hd.FindByWeight())
 	})
 
 	// run server

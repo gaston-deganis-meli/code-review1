@@ -211,3 +211,16 @@ func (s *VehicleDefault) FindByDimensions(minLength, maxLength, minWidth, maxWit
 
 	return foundV, nil
 }
+
+func (s *VehicleDefault) FindByWeight(minW, maxW float64) (map[int]models.Vehicle, error) {
+	if minW == 0.0 || maxW == 0.0 || maxW < minW {
+		return map[int]models.Vehicle{}, ValError
+	}
+
+	foundV := s.rp.FindByWeight(minW, maxW)
+	if len(foundV) == 0 {
+		return map[int]models.Vehicle{}, NotFoundMatchingError
+	}
+
+	return foundV, nil
+}

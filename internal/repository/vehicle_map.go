@@ -124,3 +124,14 @@ func (r *VehicleMap) FindByDimensions(minLength, maxLength, minWidth, maxWithd f
 	}
 	return foundVehicles
 }
+
+func (r *VehicleMap) FindByWeight(minW, maxW float64) map[int]models.Vehicle {
+	foundV := make(map[int]models.Vehicle)
+
+	for _, v := range r.db {
+		if v.Weight >= minW && v.Weight <= maxW {
+			foundV[v.Id] = v
+		}
+	}
+	return foundV
+}
